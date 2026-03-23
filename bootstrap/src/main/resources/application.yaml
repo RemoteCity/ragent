@@ -17,7 +17,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     username: root
     password: Ragent@2026!MySQL
-    url: jdbc:mysql://100.108.145.74:3306/ragent?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://82.156.202.167:3306/ragent?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     hikari:
       connection-timeout: 5000
       idle-timeout: 600000
@@ -72,7 +72,7 @@ rag:
   mcp:
     servers:
       - name: default
-        url: http://192.168.0.114:9099
+        url: http://localhost:9099
 
   search:
     channels:
