@@ -28,12 +28,12 @@ spring:
 
   data:
     redis:
-      host: 127.0.0.1
+      host: 192.168.0.114
       port: 6379
       password: Ragent@2026!Redis
 
 milvus:
-  uri: http://localhost:19530
+  uri: http://192.168.0.114:19530
 
 rag:
   default:
@@ -72,7 +72,7 @@ rag:
   mcp:
     servers:
       - name: default
-        url: http://localhost:9099
+        url: http://192.168.0.114:9099
 
   search:
     channels:
@@ -90,7 +90,7 @@ rag:
 ai:
   providers:
     ollama:
-      url: http://localhost:11434
+      url: http://192.168.0.114:11434
       endpoints:
         chat: /api/chat
         embedding: /api/embed
@@ -162,7 +162,7 @@ ai:
         priority: 1
 
 rustfs:
-  url: http://localhost:9000
+  url: http://192.168.0.114:9000
   access-key-id: rustfsadmin
   secret-access-key: rustfsadmin
 
