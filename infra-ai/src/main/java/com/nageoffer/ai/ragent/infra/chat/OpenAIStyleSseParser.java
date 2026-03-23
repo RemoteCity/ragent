@@ -55,7 +55,7 @@ final class OpenAIStyleSseParser {
 
         JsonObject choice0 = choices.get(0).getAsJsonObject();
         String content = extractText(choice0, "content");
-        String reasoning = reasoningEnabled ? extractText(choice0, "reasoning_content") : null;
+        String reasoning = reasoningEnabled ? extractReasoning(choice0) : null;
         boolean completed = hasFinishReason(choice0);
 
         return new ParsedEvent(content, reasoning, completed);
@@ -89,6 +89,60 @@ final class OpenAIStyleSseParser {
                 if (value != null && !value.isJsonNull()) {
                     return value.getAsString();
                 }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 提取推理/思考内容。
+     * 支持两种格式：
+     * 1. reasoning_content（旧版，直接字符串字段）
+     * 2. reasoning_details（MiniMax reasoning_split 模式，数组格式：[{"text": "..."}]）
+     */
+    public static String extractReasoning(JsonObject choice) {
+        if (choice == null) {
+            return null;
+        }
+
+        // 先尝试 reasoning_content（旧版字段）
+        String reasoning = extractText(choice, "reasoning_content");
+        if (reasoning != null && !reasoning.isEmpty()) {
+            return reasoning;
+        }
+
+        // 再尝试 reasoning_details 数组（MiniMax reasoning_split 模式）
+        JsonArray details = extractReasoningDetails(choice);
+        if (details != null && !details.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (JsonElement el : details) {
+                if (el.isJsonObject() && el.getAsJsonObject().has("text")) {
+                    String text = el.getAsJsonObject().get("text").getAsString();
+                    if (text != null) {
+                        if (sb.length() > 0) sb.append("\n");
+                        sb.append(text);
+                    }
+                }
+            }
+            if (sb.length() > 0) {
+                return sb.toString();
+            }
+        }
+
+        return null;
+    }
+
+    private static JsonArray extractReasoningDetails(JsonObject choice) {
+        JsonObject container = null;
+        if (choice.has("delta") && choice.get("delta").isJsonObject()) {
+            container = choice.getAsJsonObject("delta");
+        } else if (choice.has("message") && choice.get("message").isJsonObject()) {
+            container = choice.getAsJsonObject("message");
+        }
+        if (container != null && container.has("reasoning_details")) {
+            JsonElement el = container.get("reasoning_details");
+            if (el.isJsonArray()) {
+                return el.getAsJsonArray();
             }
         }
         return null;

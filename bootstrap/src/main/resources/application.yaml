@@ -16,8 +16,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
     username: root
-    password: root
-    url: jdbc:mysql://127.0.0.1:3306/ragent?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    password: Ragent@2026!MySQL
+    url: jdbc:mysql://100.108.145.74:3306/ragent?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     hikari:
       connection-timeout: 5000
       idle-timeout: 600000
@@ -30,7 +30,7 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
-      password: 123456
+      password: Ragent@2026!Redis
 
 milvus:
   uri: http://localhost:19530
@@ -38,7 +38,7 @@ milvus:
 rag:
   default:
     collection-name: rag_default_store
-    dimension: 4096
+    dimension: 1024
     metric-type: COSINE
 
   query-rewrite:
@@ -96,16 +96,26 @@ ai:
         embedding: /api/embed
     bailian:
       url: https://dashscope.aliyuncs.com
-      api-key: ${BAILIAN_API_KEY:}
+      api-key: sk-e10c10dcd8e348f78d821808932e097a
       endpoints:
         chat: /compatible-mode/v1/chat/completions
         rerank: /api/v1/services/rerank/text-rerank/text-rerank
     siliconflow:
       url: https://api.siliconflow.cn
-      api-key: ${SILICONFLOW_API_KEY:}
+      api-key: sk-nyjdpqajtrimudsgvgbrdmhzqoiarfmlmrciadkdjprwcpku
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
+    minimax:
+      url: https://api.minimaxi.com/v1
+      api-key: sk-cp-D85qUkSSS3x8ELErgux4k-wFKTpqZPkjIDOL5pkE7iDL2dTMpc9OXpZQVyUL_oUKguJh2n7ewpgyCZsGAt8JZzL_huvIBfsyRnzpTNlnJg8OSSBCnyESz48
+      endpoints:
+        chat: /chat/completions
+    jina:
+      url: https://api.jina.ai/v1
+      api-key: jina_95ba1a0aca1048d48aebd625e7213827jBTiCyQ17or2srAtdb2_DJE3c1N7
+      endpoints:
+        embedding: /embeddings
 
   selection:
     failure-threshold: 2
@@ -115,53 +125,41 @@ ai:
     message-chunk-size: 1
 
   chat:
-    default-model: qwen3-max
-    deep-thinking-model: qwen3-max
+    default-model: minimax-m2.7
+    deep-thinking-model: minimax-m2.7
     candidates:
-      - id: qwen-plus
-        provider: bailian
-        model: qwen-plus-latest
+      - id: minimax-m2.7
+        provider: minimax
+        model: MiniMax-M2.7
+        supports-thinking: false
         priority: 1
-      - id: qwen3-max
-        provider: bailian
-        model: qwen3-max
-        supports-thinking: true
-        priority: 3
       - id: glm-4.7
         provider: siliconflow
         model: Pro/zai-org/GLM-4.7
         supports-thinking: true
-        priority: 0
-      - id: qwen3-local
-        provider: ollama
-        model: qwen3:8b-fp16
         priority: 2
 
   embedding:
-    default-model: qwen-emb-8b
+    default-model: jina-v4
     candidates:
+      - id: jina-v4
+        provider: jina
+        model: jina-embeddings-v4
+        dimension: 1024
+        priority: 1
       - id: qwen-emb-8b
         provider: siliconflow
         model: Qwen/Qwen3-Embedding-8B
         dimension: 4096
-        priority: 1
-      - id: qwen-emb-local
-        provider: ollama
-        model: qwen3-embedding:8b-fp16
-        dimension: 4096
         priority: 2
 
   rerank:
-    default-model: qwen3-rerank
+    default-model: rerank-noop
     candidates:
-      - id: qwen3-rerank
-        provider: bailian
-        model: qwen3-rerank
-        priority: 1
       - id: rerank-noop
         provider: noop
         model: noop
-        priority: 100
+        priority: 1
 
 rustfs:
   url: http://localhost:9000

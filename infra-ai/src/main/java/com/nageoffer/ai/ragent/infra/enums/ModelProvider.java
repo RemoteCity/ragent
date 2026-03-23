@@ -46,7 +46,17 @@ public enum ModelProvider {
     /**
      * 空实现，用于测试或占位
      */
-    NOOP("noop");
+    NOOP("noop"),
+
+    /**
+     * MiniMax 大模型服务
+     */
+    MINIMAX("minimax"),
+
+    /**
+     * Jina AI 向量嵌入服务
+     */
+    JINA("jina");
 
     private final String id;
 
