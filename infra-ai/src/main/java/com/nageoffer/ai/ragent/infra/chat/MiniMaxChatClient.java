@@ -181,11 +181,9 @@ public class MiniMaxChatClient implements ChatClient {
             reqBody.addProperty("max_tokens", request.getMaxTokens());
         }
 
-        // 根据请求参数决定是否开启 reasoning_split
+        // reasoning_split 始终开启，让思考内容分离到 reasoning_details 字段
         JsonObject extraBody = new JsonObject();
-        if (Boolean.TRUE.equals(request.getThinking())) {
-            extraBody.addProperty("reasoning_split", true);
-        }
+        extraBody.addProperty("reasoning_split", true);
         reqBody.add("extra_body", extraBody);
 
         return reqBody;
