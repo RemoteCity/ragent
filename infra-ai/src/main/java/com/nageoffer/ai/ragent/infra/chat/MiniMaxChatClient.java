@@ -106,11 +106,11 @@ public class MiniMaxChatClient implements ChatClient {
                 modelStreamExecutor,
                 call,
                 callback,
-                cancelled -> doStream(call, callback, cancelled)
+                cancelled -> doStream(call, callback, cancelled, request)
         );
     }
 
-    private void doStream(Call call, StreamCallback callback, AtomicBoolean cancelled) {
+    private void doStream(Call call, StreamCallback callback, AtomicBoolean cancelled, ChatRequest request) {
         try (Response response = call.execute()) {
             if (!response.isSuccessful()) {
                 String body = readBody(response.body());
@@ -136,7 +136,8 @@ public class MiniMaxChatClient implements ChatClient {
                 }
 
                 try {
-                    OpenAIStyleSseParser.ParsedEvent event = OpenAIStyleSseParser.parseLine(line, gson, true);
+                    boolean reasoningEnabled = Boolean.TRUE.equals(request.getThinking());
+                    OpenAIStyleSseParser.ParsedEvent event = OpenAIStyleSseParser.parseLine(line, gson, reasoningEnabled);
                     if (event.hasReasoning()) {
                         callback.onThinking(event.reasoning());
                     }
@@ -180,9 +181,11 @@ public class MiniMaxChatClient implements ChatClient {
             reqBody.addProperty("max_tokens", request.getMaxTokens());
         }
 
-        // 开启 reasoning_split，将思考过程分离到 reasoning_details 字段
+        // 根据请求参数决定是否开启 reasoning_split
         JsonObject extraBody = new JsonObject();
-        extraBody.addProperty("reasoning_split", true);
+        if (Boolean.TRUE.equals(request.getThinking())) {
+            extraBody.addProperty("reasoning_split", true);
+        }
         reqBody.add("extra_body", extraBody);
 
         return reqBody;
